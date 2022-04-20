@@ -6,7 +6,6 @@
  */
 
 #include "serial.h"
-#include <stdio.h>
 
 /* Private variables */
 static serialsh_t hserial;

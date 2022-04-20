@@ -8,8 +8,9 @@
 #ifndef SRC_SERIAL_SERIAL_H_
 #define SRC_SERIAL_SERIAL_H_
 
-#include "tinysh.h"
 #include "stm32f4xx_hal.h"
+#include "tinysh.h"
+#include <stdio.h>
 
 typedef struct {
   UART_HandleTypeDef *huart;

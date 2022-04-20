@@ -41,7 +41,8 @@ int main(void)
   MX_DMA_Init();
   MX_USART2_UART_Init();
   
-  /* Change the prompt */
+  /* Initialize the tinysh using Serial-DMA */
+  serial_init(&huart2, dma_buffer, DMA_SZ);
   tinysh_set_prompt("STM32F4-Tinysh-v0.1$ ");
 
   /* Add the commands */
@@ -51,8 +52,7 @@ int main(void)
   tinysh_add_command(&item2);
   tinysh_add_command(&atoxi_cmd);
 
-  /* Initialize the serial using DMA */
-  serial_init(&huart2, dma_buffer, DMA_SZ);
+  /* Read in DMA interrupt mode */
   serial_read();
 
   /* Super loop */
