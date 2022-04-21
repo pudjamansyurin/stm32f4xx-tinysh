@@ -21,6 +21,7 @@
  */
 
 #include "tinysh.h"
+#include <stddef.h>
 
 #ifndef BUFFER_SIZE
 #define BUFFER_SIZE 256
@@ -37,6 +38,9 @@
 #ifndef TOPCHAR
 #define TOPCHAR '/'
 #endif
+
+#define CIN(x) ((x) >= '0' && (x) <= '9')
+#define CTN(x) ((x) - '0')
 
 typedef unsigned char uchar;
 
@@ -706,4 +710,22 @@ unsigned long tinysh_atoxi(char *s)
   }
 
   return res;
+}
+
+int tinysh_atoi(const char *t)
+{
+  int res = 0;
+  int isMinus;
+
+  for (; t != NULL && *t == ' '; t++)
+  {
+  } /* Strip leading spaces */
+
+  isMinus = (*t == '-' ? (t++, 1) : 0);
+  for (; t != NULL && CIN(*t); t++)
+  {
+    res = 10 * res + CTN(*t);
+  }
+
+  return (isMinus ? -res : res);
 }

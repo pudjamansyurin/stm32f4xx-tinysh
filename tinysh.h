@@ -65,6 +65,8 @@ void* tinysh_get_arg();
 /* provide conversion string to scalar (decimal or hexadecimal) */
 unsigned long tinysh_atoxi(char *s);
 
+int tinysh_atoi(const char *t);
+
 #ifdef __cplusplus
 }
 #endif
