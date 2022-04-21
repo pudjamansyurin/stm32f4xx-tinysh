@@ -20,6 +20,7 @@ typedef struct {
 
 /* Public function declarations */
 void serial_init(UART_HandleTypeDef *puart, uint8_t *buffer, uint16_t size);
-void serial_read(void);
+HAL_StatusTypeDef serial_read(void);
+HAL_StatusTypeDef serial_read_dma(void);
 
 #endif /* SRC_SERIAL_SERIAL_H_ */

@@ -30,11 +30,29 @@ void serial_init(UART_HandleTypeDef *uart, uint8_t *buffer, uint16_t size)
   setvbuf(stdout, NULL, _IONBF, 0);
 }
 
-void serial_read(void)
+HAL_StatusTypeDef serial_read(void)
 {
-  HAL_UARTEx_ReceiveToIdle_DMA(hserial.huart, hserial.buffer, hserial.size);
-  __HAL_DMA_DISABLE_IT(hserial.huart->hdmarx, DMA_IT_HT);
-  __HAL_DMA_ENABLE_IT(hserial.huart->hdmarx, DMA_IT_TC);
+  HAL_StatusTypeDef status;
+  uint16_t RxLen = 0;
+
+  status = HAL_UARTEx_ReceiveToIdle(hserial.huart, hserial.buffer, hserial.size, &RxLen, HAL_MAX_DELAY);
+  tinysh_line_in(hserial.buffer, RxLen);
+
+  return (status);
+}
+
+HAL_StatusTypeDef serial_read_dma(void)
+{
+  HAL_StatusTypeDef status;
+
+  status = HAL_UARTEx_ReceiveToIdle_DMA(hserial.huart, hserial.buffer, hserial.size);
+  if (status == HAL_OK)
+  {
+    __HAL_DMA_DISABLE_IT(hserial.huart->hdmarx, DMA_IT_HT);
+    __HAL_DMA_ENABLE_IT(hserial.huart->hdmarx, DMA_IT_TC);
+  }
+
+  return (status);
 }
 
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
@@ -42,7 +60,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
   if (huart->Instance == hserial.huart->Instance)
   {
     tinysh_line_in(hserial.buffer, Size);
-    serial_read();
+    serial_read_dma();
   }
 }
 

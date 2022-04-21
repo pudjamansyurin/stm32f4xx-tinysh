@@ -6,15 +6,17 @@
 ```c
 #include "stm32f4xx-tinysh/serial.h"
 
-#define DMA_SZ (32)
+#define USE_DMA_MODE
+#define BUF_SZ (32)
 
 /* Private function declarations */
+static void command_init(void);
 static void foo_fnt(int argc, char **argv);
 static void item_fnt(int argc, char **argv);
 static void atoxi_fnt(int argc, char **argv);
 
 /* Private variables */
-static uint8_t dma_buffer[DMA_SZ];
+static uint8_t Buffer[BUF_SZ];
 
 static tinysh_cmd_t myfoocmd = { 
   0, "foo", "foo command", "[args]", foo_fnt, 0, 0, 0 };
@@ -41,9 +43,28 @@ int main(void)
   MX_DMA_Init();
   MX_USART2_UART_Init();
   
-  /* Initialize the tinysh using Serial-DMA */
-  serial_init(&huart2, dma_buffer, DMA_SZ);
-  tinysh_set_prompt("STM32F4-Tinysh-v0.1$ ");
+  /* Initialize the tinysh and serial layer */
+  serial_init(&huart2, Buffer, BUF_SZ);
+  command_init();
+
+#ifdef USE_DMA_MODE
+  /* Read in DMA interrupt mode */
+  serial_read_dma();
+#endif
+
+  /* Super loop */
+  while(1) {
+#ifndef USE_DMA_MODE
+    /* Read in Blocking/Polling mode */
+    serial_read();
+#endif
+  }
+}
+
+/* Private functions definitions */
+static void command_init(void) {
+  /* Add default prompt */
+  tinysh_set_prompt("STM32F4-Tinysh-v3.5.4$ ");
 
   /* Add the commands */
   tinysh_add_command(&myfoocmd);
@@ -51,18 +72,8 @@ int main(void)
   tinysh_add_command(&item1);
   tinysh_add_command(&item2);
   tinysh_add_command(&atoxi_cmd);
-
-  /* Read in DMA interrupt mode */
-  serial_read();
-
-  /* Super loop */
-  while(1) {
-    // do what you want here
-    // command is handled in background
-  }
 }
 
-/* Private functions definitions */
 static void display_args(int argc, char **argv)
 {
   for (int i = 0; i < argc; i++)
