@@ -1,10 +1,13 @@
 # STM32F4xx Tiny Shell using USART in DMA mode
 
 ## How to use the module
+You should enable <b>USE_HAL_UART_REGISTER_CALLBACKS</b> macro
 
 #### **`main.c`**
 ```c
 #include "stm32f4xx-tinysh/serial.h"
+
+#define USE_HAL_UART_REGISTER_CALLBACKS 1
 
 #define USE_DMA_MODE
 #define BUF_SZ (32)
