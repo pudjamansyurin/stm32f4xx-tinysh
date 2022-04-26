@@ -19,12 +19,32 @@ static void tinysh_line_in(const uint8_t *data, uint16_t size)
   }
 }
 
+static void UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+  if (huart->Instance == hserial.huart->Instance)
+  {
+    tinysh_line_in(hserial.buffer, Size);
+    serial_read_dma();
+  }
+}
+
+static void UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+  if (huart->Instance == hserial.huart->Instance)
+  {
+    serial_read_dma();
+  }
+}
+
 /* Public function definitions */
 void serial_init(UART_HandleTypeDef *uart, uint8_t *buffer, uint16_t size)
 {
   hserial.huart = uart;
   hserial.buffer = buffer;
   hserial.size = size;
+
+  HAL_UART_RegisterCallback(uart, HAL_UART_ERROR_CB_ID, UART_ErrorCallback);
+  HAL_UART_RegisterRxEventCallback(uart, UARTEx_RxEventCallback);
 
   /* disable stdio buffering */
   setvbuf(stdout, NULL, _IONBF, 0);
@@ -53,15 +73,6 @@ HAL_StatusTypeDef serial_read_dma(void)
   }
 
   return (status);
-}
-
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
-{
-  if (huart->Instance == hserial.huart->Instance)
-  {
-    tinysh_line_in(hserial.buffer, Size);
-    serial_read_dma();
-  }
 }
 
 /* we must provide this function to use tinysh  */
