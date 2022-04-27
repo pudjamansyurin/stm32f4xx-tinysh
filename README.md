@@ -8,8 +8,6 @@ You should enable <b>USE_HAL_UART_REGISTER_CALLBACKS</b> macro
 #include "stm32f4xx-tinysh/serial.h"
 
 #define USE_HAL_UART_REGISTER_CALLBACKS 1
-
-#define USE_DMA_MODE
 #define BUF_SZ (32)
 
 /* Private function declarations */
@@ -46,21 +44,17 @@ int main(void)
   MX_DMA_Init();
   MX_USART2_UART_Init();
   
-  /* Initialize the tinysh and serial layer */
-  serial_init(&huart2, Buffer, BUF_SZ);
+  /* Initialize the tinysh*/
   command_init();
-
-#ifdef USE_DMA_MODE
-  /* Read in DMA interrupt mode */
-  serial_read_dma();
-#endif
+  
+  /* Initialize serial layer */
+  serial_init(&huart2, Buffer, BUF_SZ);
+  serial_set_callback(serial_line_in);
+  serial_start();
 
   /* Super loop */
   while(1) {
-#ifndef USE_DMA_MODE
-    /* Read in Blocking/Polling mode */
-    serial_read();
-#endif
+    
   }
 }
 
@@ -106,4 +100,41 @@ static void atoxi_fnt(int argc, char **argv)
            tinysh_atoxi(argv[i]));
   }
 }
+```
+
+
+#### **`stm32f4xx_it.c`**
+```c
+/* USER CODE BEGIN Includes */
+#include "stm32f4xx-tinysh/serial.h"
+/* USER CODE END Includes */
+
+/**
+  * @brief This function handles DMA1 stream5 global interrupt.
+  */
+void DMA1_Stream5_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Stream5_IRQn 0 */
+
+  /* USER CODE END DMA1_Stream5_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart2_rx);
+  /* USER CODE BEGIN DMA1_Stream5_IRQn 1 */
+  serial_irq_dma();
+  /* USER CODE END DMA1_Stream5_IRQn 1 */
+}
+
+/**
+  * @brief This function handles USART2 global interrupt.
+  */
+void USART2_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART2_IRQn 0 */
+
+  /* USER CODE END USART2_IRQn 0 */
+  HAL_UART_IRQHandler(&huart2);
+  /* USER CODE BEGIN USART2_IRQn 1 */
+  serial_irq_uart();
+  /* USER CODE END USART2_IRQn 1 */
+}
+
 ```
