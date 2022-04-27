@@ -11,17 +11,15 @@
 static serialsh_t hserial;
 
 /* Private function */
-static void tinysh_line_in(const uint8_t *data, uint16_t size)
-{
-  while (size--)
-  {
-    tinysh_char_in((unsigned char) *data++);
-  }
-}
-
 static void UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
-  tinysh_line_in(hserial.buffer, Size);
+  if (NULL != hserial.callback)
+  {
+    hserial.callback(hserial.buffer, Size);
+  } else
+  {
+    serial_line_in(hserial.buffer, Size);
+  }
   serial_read_dma();
 }
 
@@ -44,15 +42,9 @@ void serial_init(UART_HandleTypeDef *uart, uint8_t *buffer, uint16_t size)
   setvbuf(stdout, NULL, _IONBF, 0);
 }
 
-HAL_StatusTypeDef serial_read(void)
+void serial_set_callback(void (*cb)(uint8_t *pbuffer, uint16_t size))
 {
-  HAL_StatusTypeDef status;
-  uint16_t RxLen = 0;
-
-  status = HAL_UARTEx_ReceiveToIdle(hserial.huart, hserial.buffer, hserial.size, &RxLen, HAL_MAX_DELAY);
-  tinysh_line_in(hserial.buffer, RxLen);
-
-  return (status);
+  hserial.callback = cb;
 }
 
 HAL_StatusTypeDef serial_read_dma(void)
@@ -67,6 +59,18 @@ HAL_StatusTypeDef serial_read_dma(void)
   }
 
   return (status);
+}
+
+void serial_line_in(const uint8_t *data, uint16_t size)
+{
+  unsigned char ch;
+
+  for (uint16_t i = 0; i < size; i++)
+  {
+    ch = data[i];
+    tinysh_char_in(ch);
+  }
+  __NOP();
 }
 
 /* we must provide this function to use tinysh  */
