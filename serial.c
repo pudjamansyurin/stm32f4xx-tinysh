@@ -6,37 +6,15 @@
  */
 
 #include "serial.h"
+#include "circular.h"
 
 /* Private variables */
-static serialsh_t hserial;
-
-/* Private function */
-static void UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
-{
-  if (NULL != hserial.callback)
-  {
-    hserial.callback(hserial.buffer, Size);
-  } else
-  {
-    serial_line_in(hserial.buffer, Size);
-  }
-  serial_read_dma();
-}
-
-static void UART_ErrorCallback(UART_HandleTypeDef *huart)
-{
-  serial_read_dma();
-}
+static circular_t hcirc;
 
 /* Public function definitions */
 void serial_init(UART_HandleTypeDef *uart, uint8_t *buffer, uint16_t size)
 {
-  hserial.huart = uart;
-  hserial.buffer = buffer;
-  hserial.size = size;
-
-  HAL_UART_RegisterCallback(uart, HAL_UART_ERROR_CB_ID, UART_ErrorCallback);
-  HAL_UART_RegisterRxEventCallback(uart, UARTEx_RxEventCallback);
+  circular_init(&hcirc, uart, buffer, size);
 
   /* disable stdio buffering */
   setvbuf(stdout, NULL, _IONBF, 0);
@@ -44,21 +22,22 @@ void serial_init(UART_HandleTypeDef *uart, uint8_t *buffer, uint16_t size)
 
 void serial_set_callback(void (*cb)(uint8_t *pbuffer, uint16_t size))
 {
-  hserial.callback = cb;
+  circular_set_callback(&hcirc, cb);
 }
 
-HAL_StatusTypeDef serial_read_dma(void)
+HAL_StatusTypeDef serial_start(void)
 {
-  HAL_StatusTypeDef status;
+  return circular_start(&hcirc);
+}
 
-  status = HAL_UARTEx_ReceiveToIdle_DMA(hserial.huart, hserial.buffer, hserial.size);
-  if (status == HAL_OK)
-  {
-    __HAL_DMA_DISABLE_IT(hserial.huart->hdmarx, DMA_IT_HT);
-    __HAL_DMA_ENABLE_IT(hserial.huart->hdmarx, DMA_IT_TC);
-  }
+void serial_irq_dma(void)
+{
+  circular_irq_dma(&hcirc);
+}
 
-  return (status);
+void serial_irq_uart(void)
+{
+  circular_irq_uart(&hcirc);
 }
 
 void serial_line_in(const uint8_t *data, uint16_t size)
@@ -81,6 +60,6 @@ void tinysh_char_out(unsigned char c)
 /* Replace weak syscalls routines */
 int __io_putchar(int ch)
 {
-  HAL_UART_Transmit(hserial.huart, (uint8_t*) &ch, 1, HAL_MAX_DELAY);
+  HAL_UART_Transmit(hcirc.huart, (uint8_t*) &ch, 1, HAL_MAX_DELAY);
   return (ch);
 }
