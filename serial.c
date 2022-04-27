@@ -6,7 +6,7 @@
  */
 
 #include "serial.h"
-#include "circular.h"
+#include "stm32f4xx-usart-dma-circular/circular.h"
 
 /* Private variables */
 static circular_t hcirc;
