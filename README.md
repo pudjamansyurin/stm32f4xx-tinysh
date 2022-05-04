@@ -49,9 +49,9 @@ int main(void)
   command_init();
   
   /* Initialize serial layer */  
-  stdout_init(&huart2);
+  stdout_init(&huart2, NULL);
   stdin_init(&hstdin, &huart2, Buffer, BUF_SZ);
-  stdin_set_callback(&hstdin, serial_chars_in);
+  stdin_set_callback(&hstdin, tinysh_chars_in);
   stdin_start(&hstdin);
 
   /* Super loop */

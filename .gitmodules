@@ -1,3 +1,6 @@
-[submodule "stm32f4xx-usart-dma-circular"]
+[submodule "stm32f4xx-stdout"]
+	path = stm32f4xx-stdout
+	url = git@github.com:pudjamansyurin/stm32f4xx-stdout.git
+[submodule "stm32f4xx-stdin"]
 	path = stm32f4xx-stdin
-	url = git@github.com:pudjamansyurin/stm32f4xx-usart-dma-circular.git
+	url = git@github.com:pudjamansyurin/stm32f4xx-stdin.git

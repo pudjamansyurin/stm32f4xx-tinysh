@@ -9,11 +9,10 @@
 #define STM32F4XX_TINYSH_SERIAL_H_
 
 #include "stm32f4xx-stdin/stdin.h"
+#include "stm32f4xx-stdout/stdout.h"
 #include "tinysh.h"
-#include "stdio.h"
 
 /* Public function declarations */
-void stdout_init(UART_HandleTypeDef *uart);
-void stdin_chars_in(unsigned char *str, uint16_t size);
+void tinysh_chars_in(unsigned char *str, uint16_t size);
 
 #endif /* STM32F4XX_TINYSH_SERIAL_H_ */
