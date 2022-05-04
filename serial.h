@@ -16,6 +16,7 @@
 void serial_init(UART_HandleTypeDef *puart, uint8_t *buffer, uint16_t size);
 void serial_set_callback(void (*cb)(uint8_t *pbuffer, uint16_t size));
 HAL_StatusTypeDef serial_start(void);
+HAL_StatusTypeDef serial_stop(void);
 void serial_irq_dma(void);
 void serial_irq_uart(void);
 

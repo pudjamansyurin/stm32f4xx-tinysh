@@ -30,6 +30,11 @@ HAL_StatusTypeDef serial_start(void)
   return circular_start(&hcirc);
 }
 
+HAL_StatusTypeDef serial_stop(void)
+{
+  return circular_stop(&hcirc);
+}
+
 void serial_irq_dma(void)
 {
   circular_irq_dma(&hcirc);
