@@ -45,9 +45,9 @@
 typedef unsigned char uchar;
 
 /* redefine some useful and maybe missing utilities to avoid conflicts */
-#define strlen tinysh_strlen
 #define puts tinysh_puts
 #define putchar tinysh_char_out
+#define strlen tinysh_strlen
 
 static void help_fnt(int argc, char **argv);
 static tinysh_cmd_t help_cmd = { 0, "help", "display help", "<cr>", help_fnt, 0, 0, 0 };
@@ -70,12 +70,6 @@ static int strlen(uchar *s)
   int i;
   for (i = 0; *s; s++, i++);
   return i;
-}
-
-static void puts(char *s)
-{
-  while (*s)
-    putchar(*s++);
 }
 
 /* callback for help function
@@ -136,7 +130,6 @@ static int parse_command(tinysh_cmd_t **_cmd, uchar **_str)
 {
   uchar *str = *_str;
   tinysh_cmd_t *cmd;
-//  int matched_len = 0;
   tinysh_cmd_t *matched_cmd = 0;
 
   /* first eliminate first blanks */
@@ -333,9 +326,6 @@ static int help_command_line(tinysh_cmd_t *cmd, uchar *_str)
     ret = parse_command(&cmd, &str);
     if (ret == MATCH && *str == 0) /* found unique match or empty line */
     {
-//      tinysh_cmd_t *cm;
-//      int len = 0;
-
       if (cmd->child) /* display sub-commands help */
       {
         display_child_help(cmd->child);
@@ -399,7 +389,6 @@ static int complete_command_line(tinysh_cmd_t *cmd, uchar *_str)
     int i;
     uchar *__str = str;
 
-//    tinysh_cmd_t *_cmd = cmd;
     ret = parse_command(&cmd, &str);
     for (_str_len = 0; __str[_str_len] && __str[_str_len] != ' '; _str_len++);
     if (ret == MATCH && *str)
@@ -506,14 +495,13 @@ static void start_of_line()
 
 /* character input
  */
-static void _tinysh_char_in(uchar c)
+void tinysh_char_in(uchar c)
 {
   uchar *line = input_buffers[cur_buf_index];
 
   if (c == '\n' || c == '\r') /* validate command */
   {
     tinysh_cmd_t *cmd;
-//    int context = 0;
 
     /* first, echo the newline */
     if (echo)
@@ -612,15 +600,6 @@ static void _tinysh_char_in(uchar c)
       line[cur_index] = 0;
     }
   }
-}
-
-/* new character input */
-void tinysh_char_in(uchar c)
-{
-  /*
-   * filter characters here
-   */
-  _tinysh_char_in(c);
 }
 
 /* add a new command */

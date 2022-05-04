@@ -41,9 +41,9 @@ extern "C" {
 #endif
 
 /*
- * function void tinysh_char_out(unsigned char) must be provided by
- * the application
+ * functions must be provided by the application
  */
+void tinysh_puts(char *s);
 void tinysh_char_out(unsigned char c);
 
 /*

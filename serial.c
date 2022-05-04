@@ -1,62 +1,43 @@
 /*
  * serial.c
  *
- *  Created on: Apr 19, 2022
- *      Author: pudja
+ *  Created on: May 5, 2022
+ *      Author: pujak
  */
-
 #include "serial.h"
-#include "stm32f4xx-usart-dma-circular/circular.h"
 
 /* Private variables */
-static circular_t hcirc;
+static UART_HandleTypeDef *huart;
+
+/* Private function definitions */
+static void transmit(char *str, int len)
+{
+  HAL_UART_Transmit(huart, (uint8_t*) str, len, HAL_MAX_DELAY);
+}
 
 /* Public function definitions */
-void serial_init(UART_HandleTypeDef *uart, uint8_t *buffer, uint16_t size)
+void stdout_init(UART_HandleTypeDef *uart)
 {
-  circular_init(&hcirc, uart, buffer, size);
+  huart = uart;
 
   /* disable stdio buffering */
   setvbuf(stdout, NULL, _IONBF, 0);
 }
 
-void serial_set_callback(void (*cb)(uint8_t *pbuffer, uint16_t size))
+void stdin_chars_in(unsigned char *str, uint16_t size)
 {
-  circular_set_callback(&hcirc, cb);
-}
-
-HAL_StatusTypeDef serial_start(void)
-{
-  return circular_start(&hcirc);
-}
-
-HAL_StatusTypeDef serial_stop(void)
-{
-  return circular_stop(&hcirc);
-}
-
-void serial_irq_dma(void)
-{
-  circular_irq_dma(&hcirc);
-}
-
-void serial_irq_uart(void)
-{
-  circular_irq_uart(&hcirc);
-}
-
-void serial_line_in(const uint8_t *data, uint16_t size)
-{
-  unsigned char ch;
-
-  for (uint16_t i = 0; i < size; i++)
-  {
-    ch = data[i];
-    tinysh_char_in(ch);
-  }
+  while (size--)
+    tinysh_char_in(*str++);
 }
 
 /* we must provide this function to use tinysh  */
+void tinysh_puts(char *s)
+{
+//  while (*s)
+//    putchar(*s++);
+  puts(s);
+}
+
 void tinysh_char_out(unsigned char c)
 {
   putchar((int) c);
@@ -65,6 +46,12 @@ void tinysh_char_out(unsigned char c)
 /* Replace weak syscalls routines */
 int __io_putchar(int ch)
 {
-  HAL_UART_Transmit(hcirc.huart, (uint8_t*) &ch, 1, HAL_MAX_DELAY);
+  transmit((char*) &ch, 1);
   return (ch);
+}
+
+int _write(int file, char *ptr, int len)
+{
+  transmit(ptr, len);
+  return len;
 }

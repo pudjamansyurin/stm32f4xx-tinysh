@@ -1,25 +1,19 @@
 /*
  * serial.h
  *
- *  Created on: Apr 19, 2022
- *      Author: pudja
+ *  Created on: May 5, 2022
+ *      Author: pujak
  */
 
-#ifndef SRC_SERIAL_SERIAL_H_
-#define SRC_SERIAL_SERIAL_H_
+#ifndef STM32F4XX_TINYSH_SERIAL_H_
+#define STM32F4XX_TINYSH_SERIAL_H_
 
-#include "stm32f4xx_hal.h"
+#include "stm32f4xx-stdin/stdin.h"
 #include "tinysh.h"
-#include <stdio.h>
+#include "stdio.h"
 
 /* Public function declarations */
-void serial_init(UART_HandleTypeDef *puart, uint8_t *buffer, uint16_t size);
-void serial_set_callback(void (*cb)(uint8_t *pbuffer, uint16_t size));
-HAL_StatusTypeDef serial_start(void);
-HAL_StatusTypeDef serial_stop(void);
-void serial_irq_dma(void);
-void serial_irq_uart(void);
+void stdout_init(UART_HandleTypeDef *uart);
+void stdin_chars_in(unsigned char *str, uint16_t size);
 
-void serial_line_in(const uint8_t *data, uint16_t size);
-
-#endif /* SRC_SERIAL_SERIAL_H_ */
+#endif /* STM32F4XX_TINYSH_SERIAL_H_ */

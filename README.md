@@ -17,6 +17,7 @@ static void item_fnt(int argc, char **argv);
 static void atoxi_fnt(int argc, char **argv);
 
 /* Private variables */
+static stdin_t hstdin;
 static uint8_t Buffer[BUF_SZ];
 
 static tinysh_cmd_t myfoocmd = { 
@@ -47,10 +48,11 @@ int main(void)
   /* Initialize the tinysh*/
   command_init();
   
-  /* Initialize serial layer */
-  serial_init(&huart2, Buffer, BUF_SZ);
-  serial_set_callback(serial_line_in);
-  serial_start();
+  /* Initialize serial layer */  
+  stdout_init(&huart2);
+  stdin_init(&hstdin, &huart2, Buffer, BUF_SZ);
+  stdin_set_callback(&hstdin, serial_chars_in);
+  stdin_start(&hstdin);
 
   /* Super loop */
   while(1) {
@@ -119,7 +121,7 @@ void DMA1_Stream5_IRQHandler(void)
   /* USER CODE END DMA1_Stream5_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_usart2_rx);
   /* USER CODE BEGIN DMA1_Stream5_IRQn 1 */
-  serial_irq_dma();
+  stdin_irq_dma(&hstdin);
   /* USER CODE END DMA1_Stream5_IRQn 1 */
 }
 
@@ -133,7 +135,7 @@ void USART2_IRQHandler(void)
   /* USER CODE END USART2_IRQn 0 */
   HAL_UART_IRQHandler(&huart2);
   /* USER CODE BEGIN USART2_IRQn 1 */
-  serial_irq_uart();
+  stdin_irq_uart(&hstdin);
   /* USER CODE END USART2_IRQn 1 */
 }
 
