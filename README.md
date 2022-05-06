@@ -45,14 +45,14 @@ int main(void)
   MX_DMA_Init();
   MX_USART2_UART_Init();
   
-  /* Initialize the tinysh*/
-  command_init();
-  
   /* Initialize serial layer */  
   stdout_init(&huart2, NULL);
   stdin_init(&hstdin, &huart2, Buffer, BUF_SZ);
   stdin_set_callback(&hstdin, tinysh_chars_in);
   stdin_start(&hstdin);
+
+  /* Initialize the tinysh*/
+  command_init();
 
   /* Super loop */
   while(1) {
