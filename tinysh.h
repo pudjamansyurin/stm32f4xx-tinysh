@@ -44,7 +44,7 @@ extern "C" {
  * functions must be provided by the application
  */
 void tinysh_puts(char *s);
-void tinysh_char_out(unsigned char c);
+void tinysh_putchar(unsigned char c);
 
 /*
  * Functions below are provided by the tinysh module

@@ -16,12 +16,10 @@ void tinysh_chars_in(unsigned char *str, uint16_t size)
 /* we must provide this function to use tinysh  */
 void tinysh_puts(char *s)
 {
-//  while (*s)
-//    putchar(*s++);
   puts(s);
 }
 
-void tinysh_char_out(unsigned char c)
+void tinysh_putchar(unsigned char c)
 {
   putchar((int) c);
 }

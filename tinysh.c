@@ -46,7 +46,7 @@ typedef unsigned char uchar;
 
 /* redefine some useful and maybe missing utilities to avoid conflicts */
 #define puts tinysh_puts
-#define putchar tinysh_char_out
+#define putchar tinysh_putchar
 #define strlen tinysh_strlen
 
 static void help_fnt(int argc, char **argv);
