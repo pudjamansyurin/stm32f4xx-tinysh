@@ -16,7 +16,7 @@ void tinysh_chars_in(unsigned char *str, uint16_t size)
 /* we must provide this function to use tinysh  */
 void tinysh_puts(char *s)
 {
-  puts(s);
+  printf("%s", s);
 }
 
 void tinysh_putchar(unsigned char c)
